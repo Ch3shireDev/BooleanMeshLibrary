@@ -10,7 +10,7 @@ typedef vector<Polyhedron> Polyhedrons;
 
 int main(int argc, char** argv) {
 	Polyhedron p0, c0;
-	ReadOBJ("ball.obj", p0);
+	ReadOBJ("sphere.obj", p0);
 	ReadOBJ("cube.obj", c0);
 
 	Polyhedron CoreMesh, p1, p2;
@@ -20,9 +20,9 @@ int main(int argc, char** argv) {
 		p1 = p0, p2 = c0;
 		p2.Translate(r);
 		CoreMesh = BooleanSum(p1, p2);
-		WriteOBJ(to_string(i) + ".obj", CoreMesh);
+		WriteOBJ("a" + to_string(i) + ".obj", CoreMesh);
 		cerr << i << endl;
-		exit(0);
+		//exit(0);
 	}
 	//p1 = p0, p2 = p0;
 	//p2.Translate(float3(0.5f, 0.5f, 0.5f));

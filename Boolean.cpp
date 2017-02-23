@@ -21,7 +21,10 @@ Polyhedron BooleanSum(Polyhedron InMeshA, Polyhedron InMeshB) {
 					AddPolygonToMesh(InPolygon, Out);
 				continue;
 			}
-			AddPolyhedronToMesh(FracturePolygon(InPolygon, FracturingPolygons, true).GetMesh(),	Out);
+
+			//most of computations happens here:
+			AddPolyhedronToMesh(FracturePolygon(InPolygon, FracturingPolygons, true).GetMesh(), Out);
+
 		}
 	}
 	return Out;

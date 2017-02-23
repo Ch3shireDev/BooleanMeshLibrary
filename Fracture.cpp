@@ -13,114 +13,6 @@ typedef pair<int, int> TEdge;
 typedef pair<float, int> TAngle;
 typedef vector<TAngle> TNode;
 
-
-
-void FracturePolygon::AddEdgesToMesh() {
-
-	Polyhedron &Mesh = OutMesh;
-	Mesh.v = Points;
-
-	float3 Normal = InPolygon.NormalCCW();
-	vector<int> UsedEdges;
-	UsedEdges.resize(Edges.size(), 0);
-	bool flag = true;
-	int j = 0;
-	while (flag) {
-		TEdge e;
-		int k;
-		for (int i = 0; i < Edges.size(); i++) {
-			if (UsedEdges[i] == 3)continue;
-			e = Edges[i];
-			if (UsedEdges[i] == 2)swap(e.first, e.second);
-			k = i;
-			flag = false;
-			break;
-		}
-		if (flag)break;
-		vector<int> Indices;
-		Indices.push_back(e.first);
-		while (e.second != Indices[0]) {
-			Indices.push_back(e.second);
-			if (UsedEdges[k] == 0) {
-				if (e == Edges[k])UsedEdges[k] = 2;
-				else UsedEdges[k] = 1;
-			}
-			if (UsedEdges[k] > 0)UsedEdges[k] = 3;
-			auto &Nod = Nodes[e.second];
-			int i = 0;
-			while (Nod[i].second != e.first)i++;
-			e.first = e.second;
-			int N = (int)Nod.size();
-			e.second = Nod[(i + 1) % N].second;
-		}
-		Polyhedron::Face f;
-		for (auto t = Indices.rbegin(); t != Indices.rend(); t++)f.v.push_back(*t);
-		Mesh.f.push_back(f);
-		if (Mesh.FaceNormal(Mesh.NumFaces() - 1).Dot(Normal) < 0)Mesh.f.pop_back(); //don't touch
-		else {
-			auto p = Mesh.FacePolygon(Mesh.NumFaces() - 1);
-			bool flag = false;
-			auto Center = p.CenterPoint();
-			float dist = 9999;
-			for (auto fp : FracturingPolygons) {
-				float d = fp.Distance(Center);
-				if (d < 1e-8)continue;
-				if (d < dist) {
-					dist = d;
-					flag = fp.PlaneCCW().IsOnPositiveSide(Center);
-				}
-			}
-			if (!flag)Mesh.f.pop_back();
-		}
-		flag = true;
-	}
-
-	Dissolve();
-	//exit(0);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void FracturePolygon::GetPolyhedronFromEdges() {
-
-	for (auto &p : Points)
-		p = InPolygon.MapFrom2D(p.xy());
-	Nodes.reserve(Points.size());
-	for (int i = 0; i < Points.size(); i++) {
-		TNode Node;
-		for (auto p : Edges) {
-			if (p.first != i && p.second != i)continue;
-			if (p.second == i)swap(p.first, p.second);
-			float2 a = InPolygon.MapTo2D(Points[p.first]), b = InPolygon.MapTo2D(Points[p.second]);
-			float dx = a.x - b.x;
-			float dy = a.y - b.y;
-			TAngle e(atan2(dy, dx), p.second);
-			Node.push_back(e);
-		}
-		sort(Node.begin(), Node.end());
-		Nodes.push_back(Node);
-	}
-
-	AddEdgesToMesh();
-}
-
-
-
-
 FracturePolygon::FracturePolygon(Polygon &InPolygon, vector<Polygon> &FracturingPolygons, bool Side):
 	InPolygon(InPolygon),
 	FracturingPolygons(FracturingPolygons),
@@ -211,3 +103,95 @@ void FracturePolygon::GetPointsAndEdges(Polygon &Polygon2D) {
 	auto it = unique(Edges.begin(), Edges.end());
 	Edges.resize(distance(Edges.begin(), it));
 }
+
+
+
+
+void FracturePolygon::AddEdgesToMesh() {
+
+	Polyhedron &Mesh = OutMesh;
+	Mesh.v = Points;
+
+	float3 Normal = InPolygon.NormalCCW();
+	vector<int> UsedEdges;
+	UsedEdges.resize(Edges.size(), 0);
+	bool flag = true;
+	int j = 0;
+	while (flag) {
+		TEdge e;
+		int k;
+		for (int i = 0; i < Edges.size(); i++) {
+			if (UsedEdges[i] == 3)continue;
+			e = Edges[i];
+			if (UsedEdges[i] == 2)swap(e.first, e.second);
+			k = i;
+			flag = false;
+			break;
+		}
+		if (flag)break;
+		vector<int> Indices;
+		Indices.push_back(e.first);
+		while (e.second != Indices[0]) {
+			Indices.push_back(e.second);
+			if (UsedEdges[k] == 0) {
+				if (e == Edges[k])UsedEdges[k] = 2;
+				else UsedEdges[k] = 1;
+			}
+			if (UsedEdges[k] > 0)UsedEdges[k] = 3;
+			auto &Nod = Nodes[e.second];
+			int i = 0;
+			while (Nod[i].second != e.first)i++;
+			e.first = e.second;
+			int N = (int)Nod.size();
+			e.second = Nod[(i + 1) % N].second;
+		}
+		Polyhedron::Face f;
+		for (auto t = Indices.rbegin(); t != Indices.rend(); t++)f.v.push_back(*t);
+		Mesh.f.push_back(f);
+		if (Mesh.FaceNormal(Mesh.NumFaces() - 1).Dot(Normal) < 0)Mesh.f.pop_back(); //don't touch
+		else {
+			auto p = Mesh.FacePolygon(Mesh.NumFaces() - 1);
+			bool flag = false;
+			auto Center = p.CenterPoint();
+			float dist = 9999;
+			for (auto fp : FracturingPolygons) {
+				float d = fp.Distance(Center);
+				if (d < 1e-8)continue;
+				if (d < dist) {
+					dist = d;
+					flag = fp.PlaneCCW().IsOnPositiveSide(Center);
+				}
+			}
+			if (!flag)Mesh.f.pop_back();
+		}
+		flag = true;
+	}
+
+	Dissolve();
+}
+
+
+
+void FracturePolygon::GetPolyhedronFromEdges() {
+
+	for (auto &p : Points)
+		p = InPolygon.MapFrom2D(p.xy());
+	Nodes.reserve(Points.size());
+	for (int i = 0; i < Points.size(); i++) {
+		TNode Node;
+		for (auto p : Edges) {
+			if (p.first != i && p.second != i)continue;
+			if (p.second == i)swap(p.first, p.second);
+			float2 a = InPolygon.MapTo2D(Points[p.first]), b = InPolygon.MapTo2D(Points[p.second]);
+			float dx = a.x - b.x;
+			float dy = a.y - b.y;
+			TAngle e(atan2(dy, dx), p.second);
+			Node.push_back(e);
+		}
+		sort(Node.begin(), Node.end());
+		Nodes.push_back(Node);
+	}
+
+	AddEdgesToMesh();
+}
+

@@ -1,147 +1,172 @@
 #include "Fracture.h"
 #include "MeshIO.h"
-#include <boost/polygon/polygon.hpp>
-#include <cassert>
 
-using namespace boost::polygon::operators;
-using namespace boost::polygon;
-using namespace std;
+#include <deque>
+#include <fstream>
+#include <boost/geometry.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 
+namespace bg = boost::geometry;
+typedef bg::model::d2::point_xy<double> BPoint;
+typedef bg::model::polygon<BPoint, false> BPolygon;
+using bg::get;
 
-typedef point_data<float> point;
-typedef polygon_set_data<float> polygon_set;
-typedef polygon_with_holes_data<float> polygon;
-typedef pair<point, point> edge;
+void FracturePolygon::CleanRings(TRing &OuterPoints, TRings &InnerRings) {
+	
+	//cout << "Another: " << endl;
 
+	//cout << OuterPoints.size() << endl;
 
-void FracturePolygon::Dissolve() {
-	polygon_set BPolygon;
-
-	for (auto p : OutMesh.Faces()) {
-		vector<point> pts;
-		for (int i = 0; i < p.NumVertices(); i++) {
-			auto v = InPolygon.MapTo2D(p.Vertex(i));
-			pts.push_back(point(v.x, v.y));
+	TRing NewOuter;
+	for (int i = 0; i < OuterPoints.size(); i++) {
+		float3 Point = OuterPoints[i];
+		bool flag = false;
+		for (float3 p : InPolygon.p) {
+			float d = p.Distance(Point);
+			if (d < 1e-4) {
+				NewOuter.push_back(Point);
+				flag = true;
+				break;
+			}
 		}
-		polygon poly;
-		set_points(poly, pts.begin(), pts.end());
-		BPolygon += poly;
+		if (flag)continue; //point is exactly the same as one of InPolygon points
+
+		for (Polygon P : FracturingPolygons) {
+			float d = P.Distance(Point);
+			if (d < 1e-4) {
+				NewOuter.push_back(Point);
+				break;
+			}
+		}
 	}
+	//cout << NewOuter.size() << endl;
+	OuterPoints = NewOuter;
+	return;
 
-	//OutMesh = Polyhedron();
-
-
-	
-
-	vector<polygon> Polys;
-	
-	BPolygon.clean();
-	BPolygon.get(Polys);
-	cout << BPolygon.size()<<" "<<Polys.size() << endl;
-
-	//AddPolygonToMesh(P, OutMesh);
-	
+	//for (TRing &Ring : InnerRings) {
+	//	cout << "Before: " << Ring.size() << endl;
+	//	TRing NewRing;
+	//	for(int i=0;i<Ring.size();i++){
+	//		float3 Point = Ring[i];
+	//		for (Polygon &P : FracturingPolygons) {
+	//			bool flag = false;
+	//			for (int i = 0; i < P.NumEdges(); i++) {
+	//				LineSegment e = P.Edge(i);
+	//				float d = e.Distance(Point); //it didn't catch all points
+	//				if (d < 1e-5f) {
+	//					flag = true;
+	//					NewRing.push_back(Point);
+	//					break;
+	//				}
+	//			}
+	//			if (flag)break;
+	//		}
+	//	}
+	//	Ring = NewRing;
+	//	cout << "After: " << Ring.size() << endl;
+	//}
 }
 
+void FracturePolygon::Dissolve() {
+	if (OutMesh.NumFaces() < 2)return;
+
+	Polyhedron PP;
+	AddPolygonToMesh(InPolygon, PP);
+	
+	list<BPolygon> Polygons;
+
+	for (auto p : OutMesh.Faces()) {
+		BPolygon P;
+		
+		for (int i = 0; i < p.NumVertices()+1; i++) {
+			auto v = InPolygon.MapTo2D(p.Vertex(i%p.NumVertices()));
+			bg::append(P.outer(), BPoint(v.x, v.y));
+		}
+
+		Polygons.push_back(P);
+	}
+
+	
+	
+	for (auto it = Polygons.begin(); it != Polygons.end(); it++) {
+		for (auto it2 = Polygons.begin(); it2 != it;) {
+			vector<BPolygon> PPs;
+			bg::union_(*it, *it2, PPs);
+			auto it3 = it2++;
+			if (PPs.size() != 1)continue;
+			*it = PPs[0];
+			Polygons.erase(it3);
+		}
+	}
+
+	//for now we have a good polygon with hole. I need to find:
+	//	1. Way to erase additional points from outer edges
+	//	2. method to convert complex polygons (with inner rings) into non-weak simple polygons 
+	//	(without inner rings, but also without self-touching edges)
 
 
+	Polyhedron Out;
 
-//int main2() {
-//
-//	polygon_set a, b, c;
-//	a += boost::polygon::rectangle_data<int>(0 + 300, 0, 200 + 300, 200);
-//	a -= boost::polygon::rectangle_data<int>(50 + 300, 50, 150 + 300, 150);
-//	std::vector<polygon> polys;
-//	std::vector<point> pts;
-//	pts.push_back(point(-40, 0 + 300));
-//	pts.push_back(point(-10, 10 + 300));
-//	pts.push_back(point(0, 40 + 300));
-//	pts.push_back(point(10, 10 + 300));
-//	pts.push_back(point(40, 0 + 300));
-//	pts.push_back(point(10, -10 + 300));
-//	pts.push_back(point(0, -40 + 300));
-//	pts.push_back(point(-10, -10 + 300));
-//	pts.push_back(point(-40, 0 + 300));
-//	polygon poly;
-//	boost::polygon::set_points(poly, pts.begin(), pts.end());
-//	b += poly;
-//	polys.clear();
-//	convolve_two_polygon_sets(c, a, b);
-//
-//}
-//
-//
+	for (BPolygon p : Polygons) {
+		TRing OuterPoints;
+		for (BPoint pp : p.outer()) {
+			double x = get<0>(pp);
+			double y = get<1>(pp);
+			float3 Point = InPolygon.MapFrom2D(float2(x, y));
+			OuterPoints.push_back(Point);
+		}
+		OuterPoints.pop_back();
+		TRings InnerRings;
+		for (auto Inner : p.inners()) {
+			TRing InnerPoints;
+			for (BPoint pp : Inner) {
+				double x = get<0>(pp);
+				double y = get<1>(pp);
+				float3 Point = InPolygon.MapFrom2D(float2(x, y));
+				InnerPoints.push_back(Point);
+			}
+			InnerPoints.pop_back();
+			InnerRings.push_back(InnerPoints);
+		}
+		CleanRings(OuterPoints, InnerRings);
 
-//
-//void convolve_two_segments(std::vector<point>& figure, const edge& a, const edge& b) {
-//	using namespace boost::polygon;
-//	figure.clear();
-//	figure.push_back(point(a.first));
-//	figure.push_back(point(a.first));
-//	figure.push_back(point(a.second));
-//	figure.push_back(point(a.second));
-//	convolve(figure[0], b.second);
-//	convolve(figure[1], b.first);
-//	convolve(figure[2], b.first);
-//	convolve(figure[3], b.second);
-//}
-//
-//template <typename itrT1, typename itrT2>
-//void convolve_two_point_sequences(polygon_set& result, itrT1 ab, itrT1 ae, itrT2 bb, itrT2 be) {
-//	using namespace boost::polygon;
-//	if (ab == ae || bb == be)
-//		return;
-//	point prev_a = *ab;
-//	std::vector<point> vec;
-//	polygon poly;
-//	++ab;
-//	for (; ab != ae; ++ab) {
-//		point prev_b = *bb;
-//		itrT2 tmpb = bb;
-//		++tmpb;
-//		for (; tmpb != be; ++tmpb) {
-//			convolve_two_segments(vec, std::make_pair(prev_b, *tmpb), std::make_pair(prev_a, *ab));
-//			set_points(poly, vec.begin(), vec.end());
-//			result.insert(poly);
-//			prev_b = *tmpb;
-//		}
-//		prev_a = *ab;
-//	}
-//}
-//
-//template <typename itrT>
-//void convolve_point_sequence_with_polygons(polygon_set& result, itrT b, itrT e, const std::vector<polygon>& polygons) {
-//	using namespace boost::polygon;
-//	for (std::size_t i = 0; i < polygons.size(); ++i) {
-//		convolve_two_point_sequences(result, b, e, begin_points(polygons[i]), end_points(polygons[i]));
-//		for (polygon_with_holes_traits<polygon>::iterator_holes_type itrh = begin_holes(polygons[i]);
-//			itrh != end_holes(polygons[i]); ++itrh) {
-//			convolve_two_point_sequences(result, b, e, begin_points(*itrh), end_points(*itrh));
-//		}
-//	}
-//}
-//
-//void convolve_two_polygon_sets(polygon_set& result, const polygon_set& a, const polygon_set& b) {
-//	using namespace boost::polygon;
-//	result.clear();
-//	std::vector<polygon> a_polygons;
-//	std::vector<polygon> b_polygons;
-//	a.get(a_polygons);
-//	b.get(b_polygons);
-//	for (std::size_t ai = 0; ai < a_polygons.size(); ++ai) {
-//		convolve_point_sequence_with_polygons(result, begin_points(a_polygons[ai]),
-//			end_points(a_polygons[ai]), b_polygons);
-//		for (polygon_with_holes_traits<polygon>::iterator_holes_type itrh = begin_holes(a_polygons[ai]);
-//			itrh != end_holes(a_polygons[ai]); ++itrh) {
-//			convolve_point_sequence_with_polygons(result, begin_points(*itrh),
-//				end_points(*itrh), b_polygons);
-//		}
-//		for (std::size_t bi = 0; bi < b_polygons.size(); ++bi) {
-//			polygon tmp_poly = a_polygons[ai];
-//			result.insert(convolve(tmp_poly, *(begin_points(b_polygons[bi]))));
-//			tmp_poly = b_polygons[bi];
-//			result.insert(convolve(tmp_poly, *(begin_points(a_polygons[ai]))));
-//		}
-//	}
-//}
-//
+		Polygon OutPolygon;
+		for (auto v : OuterPoints) {
+			OutPolygon.p.push_back(v);
+		}
+		
+		AddPolygonToMesh(OutPolygon, Out);
+
+
+		//cout << polygon.NumVertices() << endl;
+		//Polyhedron Out;
+		//AddPolygonToMesh(polygon, Out);
+		//WriteOBJ("a.obj", Out);
+		//polygon.p.clear();
+		//for (auto v : InnerRings[0]) {
+			//polygon.p.push_back(v);
+		//}
+		//Out = Polyhedron();
+		//AddPolygonToMesh(polygon, Out);
+		//WriteOBJ("b.obj", Out);
+
+	}
+
+	//WriteOBJ("out.obj", Out);
+	/*static int i = 0;
+	char s1[64], s2[64];
+	sprintf(s1, "%03d.obj", i);
+	sprintf(s2, "%03da.obj", i);
+*/
+	//for (auto p : FracturingPolygons)AddPolygonToMesh(p, OutMesh);
+
+	//WriteOBJ(s1, OutMesh);
+	OutMesh = Out;
+	//WriteOBJ(s2, OutMesh);
+	//i++;
+	//exit(0);
+}
+
