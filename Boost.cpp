@@ -14,61 +14,47 @@ typedef bg::model::d2::point_xy<double> BPoint;
 typedef bg::model::polygon<BPoint, false> BPolygon;
 using bg::get;
 
-void FracturePolygon::CleanRings(TRing &OuterPoints, TRings &InnerRings) {
-	
-	//cout << "Another: " << endl;
 
-	//cout << OuterPoints.size() << endl;
+void FracturePolygon::DividePolygon(TPolys &Polygons, TPolys::iterator it) {
+	if (it->InnerRings.size() == 0)return;
 
-	TRing NewOuter;
-	for (int i = 0; i < OuterPoints.size(); i++) {
-		float3 Point = OuterPoints[i];
-		bool flag = false;
-		for (float3 p : InPolygon.p) {
-			float d = p.Distance(Point);
-			if (d < 1e-4) {
-				NewOuter.push_back(Point);
-				flag = true;
-				break;
-			}
-		}
-		if (flag)continue; //point is exactly the same as one of InPolygon points
+	TRing &OuterRing = it->OuterRing;
+	TRings &InnerRings = it->InnerRings;
 
-		for (Polygon P : FracturingPolygons) {
-			float d = P.Distance(Point);
-			if (d < 1e-4) {
-				NewOuter.push_back(Point);
-				break;
-			}
-		}
+	int nOuter = OuterRing.size();
+
+	cout << OuterRing.size() << endl;
+	cout << InnerRings.size() << endl;
+	cout << InnerRings[0].size() << endl;
+
+	int StartOuter = 1;
+	int TargetOuter = 3;
+
+	int InnerRingNum = 0;
+
+	int nInner = InnerRings[0].size();
+	int StartInner = 0;
+	int TargetInner = 30;
+
+	Polygon P0, P1;
+
+	for (int i = StartOuter; i <= StartOuter + nOuter; i++) {
+
+		P0.p.push_back(it->OuterRing[i%nOuter]);
 	}
-	//cout << NewOuter.size() << endl;
-	OuterPoints = NewOuter;
-	return;
+	for (int i = TargetOuter; i <= (TargetOuter > StartOuter ? StartOuter + nOuter : StartOuter); i++) 
+		P1.p.push_back(it->OuterRing[i%nOuter]);
+	for (int i = StartInner; i <= (TargetInner > StartInner ? TargetInner : TargetInner + nInner); i++)	
+		P0.p.push_back(it->InnerRings[InnerRingNum][i]);
+	for (int i = TargetInner; i <= (TargetInner > StartInner ? StartInner+nInner : StartInner); i++)
+		P1.p.push_back(it->InnerRings[InnerRingNum][i%nInner]);
 
-	//for (TRing &Ring : InnerRings) {
-	//	cout << "Before: " << Ring.size() << endl;
-	//	TRing NewRing;
-	//	for(int i=0;i<Ring.size();i++){
-	//		float3 Point = Ring[i];
-	//		for (Polygon &P : FracturingPolygons) {
-	//			bool flag = false;
-	//			for (int i = 0; i < P.NumEdges(); i++) {
-	//				LineSegment e = P.Edge(i);
-	//				float d = e.Distance(Point); //it didn't catch all points
-	//				if (d < 1e-5f) {
-	//					flag = true;
-	//					NewRing.push_back(Point);
-	//					break;
-	//				}
-	//			}
-	//			if (flag)break;
-	//		}
-	//	}
-	//	Ring = NewRing;
-	//	cout << "After: " << Ring.size() << endl;
-	//}
+	WriteOBJ("a.obj", P0);
+	WriteOBJ("b.obj", P1);
+
+	exit(0);
 }
+
 
 void FracturePolygon::Dissolve() {
 	if (OutMesh.NumFaces() < 2)return;
@@ -108,7 +94,7 @@ void FracturePolygon::Dissolve() {
 	//	(without inner rings, but also without self-touching edges)
 
 
-	Polyhedron Out;
+	TPolys Polys;
 
 	for (BPolygon p : Polygons) {
 		TRing OuterPoints;
@@ -131,42 +117,57 @@ void FracturePolygon::Dissolve() {
 			InnerPoints.pop_back();
 			InnerRings.push_back(InnerPoints);
 		}
-		CleanRings(OuterPoints, InnerRings);
-
-		Polygon OutPolygon;
-		for (auto v : OuterPoints) {
-			OutPolygon.p.push_back(v);
-		}
-		
-		AddPolygonToMesh(OutPolygon, Out);
-
-
-		//cout << polygon.NumVertices() << endl;
-		//Polyhedron Out;
-		//AddPolygonToMesh(polygon, Out);
-		//WriteOBJ("a.obj", Out);
-		//polygon.p.clear();
-		//for (auto v : InnerRings[0]) {
-			//polygon.p.push_back(v);
-		//}
-		//Out = Polyhedron();
-		//AddPolygonToMesh(polygon, Out);
-		//WriteOBJ("b.obj", Out);
-
+		TPolygon Poly;
+		Poly.OuterRing = OuterPoints;
+		Poly.InnerRings = InnerRings;
+		Polys.push_back(Poly);
 	}
 
-	//WriteOBJ("out.obj", Out);
-	/*static int i = 0;
-	char s1[64], s2[64];
-	sprintf(s1, "%03d.obj", i);
-	sprintf(s2, "%03da.obj", i);
-*/
-	//for (auto p : FracturingPolygons)AddPolygonToMesh(p, OutMesh);
+	GetMeshFromRings(Polys);
 
-	//WriteOBJ(s1, OutMesh);
-	OutMesh = Out;
-	//WriteOBJ(s2, OutMesh);
-	//i++;
-	//exit(0);
+
 }
 
+void FracturePolygon::GetMeshFromRings(TPolys Polygons) {
+	OutMesh = Polyhedron();
+	for (auto &Poly : Polygons) CleanRings(Poly);
+
+	for (auto it = Polygons.begin(); it != Polygons.end(); it++) {
+		DividePolygon(Polygons, it); //dividing as long as InnerRings size > 0
+		Polygon OutPolygon;
+		for (auto v : it->OuterRing) OutPolygon.p.push_back(v);
+		AddPolygonToMesh(OutPolygon, OutMesh);
+	}
+
+}
+
+void FracturePolygon::CleanRings(TPolygon &Poly) {
+
+	TRing &OuterPoints = Poly.OuterRing;
+	TRings &InnerRings = Poly.InnerRings;
+
+	TRing NewOuter;
+	for (int i = 0; i < OuterPoints.size(); i++) {
+		float3 Point = OuterPoints[i];
+		bool flag = false;
+		for (float3 p : InPolygon.p) {
+			float d = p.Distance(Point);
+			if (d < 1e-4) {
+				NewOuter.push_back(Point);
+				flag = true;
+				break;
+			}
+		}
+		if (flag)continue; //point is exactly the same as one of InPolygon points
+
+		for (Polygon &P : FracturingPolygons) {
+			float d = P.Distance(Point);
+			if (d < 1e-4) {
+				NewOuter.push_back(Point);
+				break;
+			}
+		}
+	}
+
+	OuterPoints = NewOuter;
+}

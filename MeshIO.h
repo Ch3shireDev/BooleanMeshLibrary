@@ -19,6 +19,7 @@ using namespace std;
 void ReadOBJ(const char *name, Polyhedron &poly);
 void WriteOBJ(const char *name, Polyhedron &poly);
 void WriteOBJ(const string name, Polyhedron &poly);
+void WriteOBJ(const string name, Polygon &poly);
 ostream& operator<<(ostream &out, const Polyhedron::Face &face);
 void FixPolyhedron(Polyhedron &poly);
 void AddPolygonToMesh(Polygon &InPolygon, Polyhedron &Mesh);

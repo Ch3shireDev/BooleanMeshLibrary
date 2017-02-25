@@ -1,5 +1,11 @@
 #include "MeshIO.h"
 
+void WriteOBJ(const string name, Polygon &poly) {
+	Polyhedron Out;
+	AddPolygonToMesh(poly, Out);
+	WriteOBJ(name, Out);
+}
+
 void AddPolygonToMesh(Polygon &InPolygon, Polyhedron &Mesh) {
 	int n = (int)Mesh.v.size();
 	Polyhedron::Face f;

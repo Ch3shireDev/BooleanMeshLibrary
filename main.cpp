@@ -22,10 +22,5 @@ int main(int argc, char** argv) {
 		CoreMesh = BooleanSum(p1, p2);
 		WriteOBJ("a" + to_string(i) + ".obj", CoreMesh);
 		cerr << i << endl;
-		//exit(0);
 	}
-	//p1 = p0, p2 = p0;
-	//p2.Translate(float3(0.5f, 0.5f, 0.5f));
-	//CoreMesh = BooleanSum(p1, p2);
-	//WriteOBJ("b.obj", CoreMesh);
 }
