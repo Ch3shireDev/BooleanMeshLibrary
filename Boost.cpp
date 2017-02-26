@@ -15,44 +15,120 @@ typedef bg::model::polygon<BPoint, false> BPolygon;
 using bg::get;
 
 
+//one hole case for now.
+
 void FracturePolygon::DividePolygon(TPolys &Polygons, TPolys::iterator it) {
 	if (it->InnerRings.size() == 0)return;
 
 	TRing &OuterRing = it->OuterRing;
 	TRings &InnerRings = it->InnerRings;
 
+	if (InnerRings.size() > 1) {
+		cout << "Error - number of holes larger than one" << endl;
+		exit(0);
+	}
+
 	int nOuter = OuterRing.size();
-
-	cout << OuterRing.size() << endl;
-	cout << InnerRings.size() << endl;
-	cout << InnerRings[0].size() << endl;
-
-	int StartOuter = 1;
-	int TargetOuter = 3;
-
+	int nInner = InnerRings[0].size();
 	int InnerRingNum = 0;
 
-	int nInner = InnerRings[0].size();
-	int StartInner = 0;
-	int TargetInner = 30;
+	int StartOuter = -1;
+	int TargetOuter = -1;
+
+	int StartInner = -1;
+	int TargetInner = -1;
+
+	float dmin = 0;
+	for (int i = 0; i < nOuter; i++) {
+		float3 p1 = OuterRing[i];
+		for (int j = 0; j < nInner; j++) {
+			float3 p2 = InnerRings[InnerRingNum][j];
+			float d = p1.Distance(p2);
+			if (d == 0)continue;
+			d = 1 / d;
+			if (d > dmin) {
+				dmin = d;
+				StartOuter = i;
+				TargetInner = j;
+			}
+		}
+	}
+
+	if (StartOuter < 0 || TargetInner < 0){
+		cout << "Error! No points found" << endl;
+		exit(0);
+	}
+
+	dmin = 0;
+	float3 p1 = OuterRing[StartOuter];
+	for (int i = 0; i < nOuter; i++) {
+		if (i == StartOuter)continue;
+		float3 p2 = OuterRing[i];
+		float d = p1.Distance(p2);
+		if (d == 0)continue;
+		if (d > dmin) {
+			dmin = d;
+			TargetOuter = i;
+		}
+	}
+
+	dmin = 0;
+	p1 = OuterRing[TargetOuter];
+
+	for (int i = 0; i < nInner; i++) {
+		if (i == TargetInner)continue;
+		float3 p2 = InnerRings[InnerRingNum][i];
+		float d = p1.Distance(p2);
+		if (d == 0)continue;
+		d = 1 / d;
+		if (d > dmin) {
+			dmin = d;
+			StartInner = i;
+		}
+	}
+
 
 	Polygon P0, P1;
 
-	for (int i = StartOuter; i <= StartOuter + nOuter; i++) {
-
-		P0.p.push_back(it->OuterRing[i%nOuter]);
+	if (StartOuter < TargetOuter) {
+		for (int i = StartOuter; i <= TargetOuter; i++)
+			P0.p.push_back(OuterRing[i%nOuter]);
+		for (int i = TargetOuter; i <= StartOuter + nOuter; i++)
+			P1.p.push_back(OuterRing[i%nOuter]);
 	}
-	for (int i = TargetOuter; i <= (TargetOuter > StartOuter ? StartOuter + nOuter : StartOuter); i++) 
-		P1.p.push_back(it->OuterRing[i%nOuter]);
-	for (int i = StartInner; i <= (TargetInner > StartInner ? TargetInner : TargetInner + nInner); i++)	
-		P0.p.push_back(it->InnerRings[InnerRingNum][i]);
-	for (int i = TargetInner; i <= (TargetInner > StartInner ? StartInner+nInner : StartInner); i++)
-		P1.p.push_back(it->InnerRings[InnerRingNum][i%nInner]);
+	else {
+		for (int i = StartOuter; i <= TargetOuter + nOuter; i++)
+			P0.p.push_back(OuterRing[i%nOuter]);
+		for (int i = TargetOuter; i <= StartOuter; i++)
+			P1.p.push_back(OuterRing[i%nOuter]);
+	}
 
-	WriteOBJ("a.obj", P0);
-	WriteOBJ("b.obj", P1);
+	if (StartInner < TargetInner) {
+		for (int i = StartInner; i <= TargetInner; i++)
+			P0.p.push_back(InnerRings[InnerRingNum][i%nInner]);
+		for (int i = TargetInner; i <= StartInner+nInner; i++)
+			P1.p.push_back(InnerRings[InnerRingNum][i%nInner]);
+	}
+	else {
+		for (int i = StartInner; i <= TargetInner+nInner; i++)
+			P0.p.push_back(InnerRings[InnerRingNum][i%nInner]);
+		for (int i = TargetInner; i <= StartInner; i++)
+			P1.p.push_back(InnerRings[InnerRingNum][i%nInner]);
+	}
 
-	exit(0);
+	//WriteOBJ("a.obj", P0);
+	//WriteOBJ("b.obj", P1);
+	//exit(0);
+
+
+	InnerRings.clear();
+	OuterRing = P0.p;
+
+	TPolygon PP;
+	PP.OuterRing = P1.p;
+
+	Polygons.push_back(PP);
+
 }
 
 

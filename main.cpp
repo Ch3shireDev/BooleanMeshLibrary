@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 		p1 = p0, p2 = c0;
 		p2.Translate(r);
 		CoreMesh = BooleanSum(p1, p2);
-		WriteOBJ("a" + to_string(i) + ".obj", CoreMesh);
+		WriteOBJ(to_string(i) + ".obj", CoreMesh);
 		cerr << i << endl;
 	}
 }
