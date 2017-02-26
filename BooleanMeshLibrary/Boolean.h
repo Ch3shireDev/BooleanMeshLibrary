@@ -1,6 +1,6 @@
 #pragma once
 #define MATH_ENABLE_STL_SUPPORT
-#include "src/MathGeoLib.h"
+#include <MathGeoLib.h>
 
 using namespace std;
 using namespace math;

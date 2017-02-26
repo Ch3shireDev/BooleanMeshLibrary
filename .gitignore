@@ -7,9 +7,14 @@
 .metadata
 bin/
 tmp/
+Binaries/
+packages/
 *.tmp
 *.bak
 *.swp
+*.opendb
+[Tt]emp
+*.lib
 *~.nib
 local.properties
 .classpath

@@ -124,69 +124,25 @@
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996; 4244; 4267</DisableSpecificWarnings>
       <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>C:\Users\cheshire\Documents\GitHub\Geometry\BooleanMeshLibrary\MathGeoLib\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>../MathGeoLib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="README.md" />
-    <None Include="src\Geometry\KDTree.inl" />
-    <None Include="src\Geometry\QuadTree.inl" />
-    <None Include="src\Geometry\TriangleMesh_IntersectRay_AVX.inl" />
-    <None Include="src\Geometry\TriangleMesh_IntersectRay_CPP.inl" />
-    <None Include="src\Geometry\TriangleMesh_IntersectRay_SSE.inl" />
-    <None Include="src\Math\float2.inl" />
-    <None Include="src\Math\Matrix.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Boost.cpp" />
     <ClCompile Include="Fracture.cpp" />
-    <ClCompile Include="Remesh.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshIO.cpp" />
     <ClCompile Include="Boolean.cpp" />
-    <ClCompile Include="src\Algorithm\GJK.cpp" />
-    <ClCompile Include="src\Algorithm\Random\LCG.cpp" />
-    <ClCompile Include="src\Geometry\AABB.cpp" />
-    <ClCompile Include="src\Geometry\Capsule.cpp" />
-    <ClCompile Include="src\Geometry\Circle.cpp" />
-    <ClCompile Include="src\Geometry\Frustum.cpp" />
-    <ClCompile Include="src\Geometry\Line.cpp" />
-    <ClCompile Include="src\Geometry\LineSegment.cpp" />
-    <ClCompile Include="src\Geometry\OBB.cpp" />
-    <ClCompile Include="src\Geometry\PBVolume.cpp" />
-    <ClCompile Include="src\Geometry\Plane.cpp" />
-    <ClCompile Include="src\Geometry\Polygon.cpp" />
-    <ClCompile Include="src\Geometry\Polyhedron.cpp" />
-    <ClCompile Include="src\Geometry\Ray.cpp" />
-    <ClCompile Include="src\Geometry\Sphere.cpp" />
-    <ClCompile Include="src\Geometry\Triangle.cpp" />
-    <ClCompile Include="src\Geometry\TriangleMesh.cpp" />
-    <ClCompile Include="src\Math\BitOps.cpp" />
-    <ClCompile Include="src\Math\Callstack.cpp" />
-    <ClCompile Include="src\Math\float2.cpp" />
-    <ClCompile Include="src\Math\float3.cpp" />
-    <ClCompile Include="src\Math\float3x3.cpp" />
-    <ClCompile Include="src\Math\float3x4.cpp" />
-    <ClCompile Include="src\Math\float4.cpp" />
-    <ClCompile Include="src\Math\float4d.cpp" />
-    <ClCompile Include="src\Math\float4x4.cpp" />
-    <ClCompile Include="src\Math\grisu3.c" />
-    <ClCompile Include="src\Math\grisu3_cpp.cpp" />
-    <ClCompile Include="src\Math\MathFunc.cpp" />
-    <ClCompile Include="src\Math\MathLog.cpp" />
-    <ClCompile Include="src\Math\MathOps.cpp" />
-    <ClCompile Include="src\Math\Polynomial.cpp" />
-    <ClCompile Include="src\Math\Quat.cpp" />
-    <ClCompile Include="src\Math\SSEMath.cpp" />
-    <ClCompile Include="src\Math\TransformOps.cpp" />
-    <ClCompile Include="src\Time\Clock.cpp" />
     <ClCompile Include="WavefrontIO.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -194,71 +150,6 @@
     <ClInclude Include="MeshIO.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Boolean.h" />
-    <ClInclude Include="src\Algorithm\GJK.h" />
-    <ClInclude Include="src\Algorithm\Random\LCG.h" />
-    <ClInclude Include="src\Algorithm\SAT.h" />
-    <ClInclude Include="src\emscripten\library_system.h" />
-    <ClInclude Include="src\Geometry\AABB.h" />
-    <ClInclude Include="src\Geometry\AABB2D.h" />
-    <ClInclude Include="src\Geometry\Capsule.h" />
-    <ClInclude Include="src\Geometry\Circle.h" />
-    <ClInclude Include="src\Geometry\Frustum.h" />
-    <ClInclude Include="src\Geometry\GeometryAll.h" />
-    <ClInclude Include="src\Geometry\GeomType.h" />
-    <ClInclude Include="src\Geometry\HitInfo.h" />
-    <ClInclude Include="src\Geometry\KDTree.h" />
-    <ClInclude Include="src\Geometry\Line.h" />
-    <ClInclude Include="src\Geometry\LineSegment.h" />
-    <ClInclude Include="src\Geometry\OBB.h" />
-    <ClInclude Include="src\Geometry\PBVolume.h" />
-    <ClInclude Include="src\Geometry\Plane.h" />
-    <ClInclude Include="src\Geometry\Polygon.h" />
-    <ClInclude Include="src\Geometry\Polyhedron.h" />
-    <ClInclude Include="src\Geometry\QuadTree.h" />
-    <ClInclude Include="src\Geometry\Ray.h" />
-    <ClInclude Include="src\Geometry\Sphere.h" />
-    <ClInclude Include="src\Geometry\Triangle.h" />
-    <ClInclude Include="src\Geometry\TriangleMesh.h" />
-    <ClInclude Include="src\MathBuildConfig.h" />
-    <ClInclude Include="src\MathGeoLib.h" />
-    <ClInclude Include="src\MathGeoLibFwd.h" />
-    <ClInclude Include="src\Math\assume.h" />
-    <ClInclude Include="src\Math\BitOps.h" />
-    <ClInclude Include="src\Math\Callstack.h" />
-    <ClInclude Include="src\Math\FixedPoint.h" />
-    <ClInclude Include="src\Math\float2.h" />
-    <ClInclude Include="src\Math\float3.h" />
-    <ClInclude Include="src\Math\float3x3.h" />
-    <ClInclude Include="src\Math\float3x4.h" />
-    <ClInclude Include="src\Math\float4.h" />
-    <ClInclude Include="src\Math\float4d.h" />
-    <ClInclude Include="src\Math\float4x4.h" />
-    <ClInclude Include="src\Math\float4x4_neon.h" />
-    <ClInclude Include="src\Math\float4x4_sse.h" />
-    <ClInclude Include="src\Math\float4_neon.h" />
-    <ClInclude Include="src\Math\float4_sse.h" />
-    <ClInclude Include="src\Math\FloatCmp.h" />
-    <ClInclude Include="src\Math\grisu3.h" />
-    <ClInclude Include="src\Math\InclWindows.h" />
-    <ClInclude Include="src\Math\MathAll.h" />
-    <ClInclude Include="src\Math\MathConstants.h" />
-    <ClInclude Include="src\Math\MathFunc.h" />
-    <ClInclude Include="src\Math\MathLog.h" />
-    <ClInclude Include="src\Math\MathNamespace.h" />
-    <ClInclude Include="src\Math\MathTypes.h" />
-    <ClInclude Include="src\Math\MatrixProxy.h" />
-    <ClInclude Include="src\Math\myassert.h" />
-    <ClInclude Include="src\Math\Polynomial.h" />
-    <ClInclude Include="src\Math\Quat.h" />
-    <ClInclude Include="src\Math\quat_simd.h" />
-    <ClInclude Include="src\Math\Rect.h" />
-    <ClInclude Include="src\Math\Reinterpret.h" />
-    <ClInclude Include="src\Math\simd.h" />
-    <ClInclude Include="src\Math\SSEMath.h" />
-    <ClInclude Include="src\Math\sse_mathfun.h" />
-    <ClInclude Include="src\Math\TransformOps.h" />
-    <ClInclude Include="src\Time\Clock.h" />
-    <ClInclude Include="WavefrontIO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

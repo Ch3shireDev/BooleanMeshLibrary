@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 #define MATH_ENABLE_STL_SUPPORT
-#include "src/MathGeoLib.h"
+#include <MathGeoLib.h>
 #include "WavefrontIO.h"
 
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "src/MathGeoLib.h"
+#include <MathGeoLib.h>
 #include <list>
 
 using namespace std;
