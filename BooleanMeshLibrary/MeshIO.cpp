@@ -1,5 +1,11 @@
 #include "MeshIO.h"
 
+#include <cstdlib>
+#include <algorithm>
+
+static double delta = 1e-12f;
+static double delta2 = 1e-6;
+
 void WriteOBJ(const string name, Polygon &poly) {
 	Polyhedron Out;
 	AddPolygonToMesh(poly, Out);

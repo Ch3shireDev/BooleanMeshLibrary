@@ -4,7 +4,6 @@
     <ClCompile Include="Boolean.cpp" />
     <ClCompile Include="Boost.cpp" />
     <ClCompile Include="Fracture.cpp" />
-    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshIO.cpp" />
     <ClCompile Include="WavefrontIO.cpp" />
@@ -12,11 +11,9 @@
   <ItemGroup>
     <ClInclude Include="Boolean.h" />
     <ClInclude Include="Fracture.h" />
-    <ClInclude Include="Graph.h" />
     <ClInclude Include="MeshIO.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="README.md" />
   </ItemGroup>
 </Project>

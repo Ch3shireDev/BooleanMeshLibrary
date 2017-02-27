@@ -1,17 +1,7 @@
 #pragma once
-#include <chrono>
-#include <unordered_map>
-#include <vector>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#define MATH_ENABLE_STL_SUPPORT
 #include <MathGeoLib.h>
 #include "WavefrontIO.h"
-
-
-static double delta = 1e-12f;
-static double delta2 = 1e-6;
+#include <iostream>
 
 using namespace math;
 using namespace std;

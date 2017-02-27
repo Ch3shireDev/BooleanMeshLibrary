@@ -11,6 +11,8 @@ class FracturePolygon {
 	bool Side;
 	Polygon &InPolygon; 
 	vector<Polygon> &FracturingPolygons;
+
+	Polygon Polygon2D;
 	Polyhedron OutMesh;
 
 	vector<float3> Points;
@@ -29,14 +31,16 @@ class FracturePolygon {
 	typedef list<TPolygon> TPolys;
 
 protected:
-	void GetPointsAndEdges(Polygon &Polygon2D);
+	void GetPointsAndEdges();
 	void GetPolyhedronFromEdges();
 	void AddEdgesToMesh();
 	void Dissolve();
 	void CleanRings(TPolygon &Poly);
+	void GetPolygon2D();
+	void GetLines();
 	void GetMeshFromRings(TPolys Polygons);
 	void DividePolygon(TPolys &Polygons, TPolys::iterator Iterator);
 public:
 	FracturePolygon(Polygon &InPolygon, vector<Polygon> &FracturingPolygons, bool Side = true);
-	Polyhedron &GetMesh() { return OutMesh; }
+	Polyhedron& GetMesh() { return OutMesh; }
 };

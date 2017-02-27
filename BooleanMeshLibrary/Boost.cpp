@@ -116,10 +116,6 @@ void FracturePolygon::DividePolygon(TPolys &Polygons, TPolys::iterator it) {
 			P1.p.push_back(InnerRings[InnerRingNum][i%nInner]);
 	}
 
-	//WriteOBJ("a.obj", P0);
-	//WriteOBJ("b.obj", P1);
-	//exit(0);
-
 
 	InnerRings.clear();
 	OuterRing = P0.p;
@@ -134,10 +130,6 @@ void FracturePolygon::DividePolygon(TPolys &Polygons, TPolys::iterator it) {
 
 void FracturePolygon::Dissolve() {
 	if (OutMesh.NumFaces() < 2)return;
-
-	Polyhedron PP;
-	AddPolygonToMesh(InPolygon, PP);
-	
 	list<BPolygon> Polygons;
 
 	for (auto p : OutMesh.Faces()) {

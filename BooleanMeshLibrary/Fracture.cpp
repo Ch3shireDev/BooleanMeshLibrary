@@ -1,14 +1,7 @@
 #include "Fracture.h"
 #include "MeshIO.h"
 #include <algorithm>
-#include <cstdlib>
-#include <unordered_set>
-#include <unordered_map>
-#include <map>
-#include <vector>
-#include <cmath>
 
-using namespace std;
 typedef pair<int, int> TEdge;
 typedef pair<float, int> TAngle;
 typedef vector<TAngle> TNode;
@@ -18,11 +11,13 @@ FracturePolygon::FracturePolygon(Polygon &InPolygon, vector<Polygon> &Fracturing
 	FracturingPolygons(FracturingPolygons),
 	Side(Side)
 {
-	Polygon Polygon2D;
-	for (int i = 0; i < InPolygon.NumVertices(); i++) {
-		auto p = InPolygon.MapTo2D(i);
-		Polygon2D.p.push_back(float3(p.x, p.y, 0));
-	}
+	GetPolygon2D();
+	GetLines();
+	GetPointsAndEdges();
+	GetPolyhedronFromEdges();
+}
+
+void FracturePolygon::GetLines() {
 	for (int i = 0; i < Polygon2D.NumEdges(); i++)Lines.push_back(Polygon2D.Edge(i).ToLine());
 	auto P1 = InPolygon.PlaneCCW();
 	auto N1 = P1.normal;
@@ -39,16 +34,19 @@ FracturePolygon::FracturePolygon(Polygon &InPolygon, vector<Polygon> &Fracturing
 		float2 dir2d = InPolygon.MapTo2D(InPolygon.p[0] + N3);
 		Lines.push_back(Line(float3(pos2d.x, pos2d.y, 0), float3(dir2d.x, dir2d.y, 0)));
 	}
-	GetPointsAndEdges(Polygon2D);
-	GetPolyhedronFromEdges();
 }
 
-void FracturePolygon::GetPointsAndEdges(Polygon &Polygon2D) {
+void FracturePolygon::GetPolygon2D() {
+	for (int i = 0; i < InPolygon.NumVertices(); i++) {
+		auto p = InPolygon.MapTo2D(i);
+		Polygon2D.p.push_back(float3(p.x, p.y, 0));
+	}
+}
 
+void FracturePolygon::GetPointsAndEdges() {
 	auto n = Lines.size();
 	vector<vector<float>> tValues;
 	tValues.resize(n);
-
 
 	for (int i = 0; i < n; i++) {
 		for (int j = i + 1; j < n; j++) {
@@ -104,9 +102,6 @@ void FracturePolygon::GetPointsAndEdges(Polygon &Polygon2D) {
 	Edges.resize(distance(Edges.begin(), it));
 }
 
-
-
-
 void FracturePolygon::AddEdgesToMesh() {
 
 	Polyhedron &Mesh = OutMesh;
@@ -153,11 +148,13 @@ void FracturePolygon::AddEdgesToMesh() {
 			auto p = Mesh.FacePolygon(Mesh.NumFaces() - 1);
 			bool flag = false;
 			auto Center = p.CenterPoint();
-			float dist = 9999;
+			float dist = 0;
 			for (auto fp : FracturingPolygons) {
 				float d = fp.Distance(Center);
-				if (d < 1e-8)continue;
-				if (d < dist) {
+				//if (d < 1e-8)continue;
+				if (d == 0)continue;
+				d = 1 / d;
+				if (d > dist) {
 					dist = d;
 					flag = fp.PlaneCCW().IsOnPositiveSide(Center);
 				}
@@ -167,10 +164,8 @@ void FracturePolygon::AddEdgesToMesh() {
 		flag = true;
 	}
 
-	Dissolve();
+	//Dissolve();
 }
-
-
 
 void FracturePolygon::GetPolyhedronFromEdges() {
 

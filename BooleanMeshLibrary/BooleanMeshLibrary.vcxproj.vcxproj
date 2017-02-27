@@ -134,12 +134,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Boost.cpp" />
     <ClCompile Include="Fracture.cpp" />
-    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshIO.cpp" />
     <ClCompile Include="Boolean.cpp" />
@@ -148,7 +146,6 @@
   <ItemGroup>
     <ClInclude Include="Fracture.h" />
     <ClInclude Include="MeshIO.h" />
-    <ClInclude Include="Graph.h" />
     <ClInclude Include="Boolean.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
