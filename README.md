@@ -9,4 +9,8 @@ Example image for boolean sum of cube and sphere (files in repository) below.
 
 Great thanks to Jukka Jylänki, the author of MathGeoLib. I wouldn't be able to create this library if not the simplicity of his code.
 
+## Class diagram
+
+![Class diagram](/ClassDiagram.png)
+
 Code also uses Boost Library (http://www.boost.org) and TinyObjLoader (http://github.com/syoyo/tinyobjloader/).

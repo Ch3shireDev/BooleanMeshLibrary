@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="FracturePolygon">
+    <Position X="0.5" Y="0.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Typedef Name="FracturePolygon::TRing" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Fracture.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="FracturePolygon::TRings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Fracture.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Struct Name="FracturePolygon::TPolygon">
+        <TypeIdentifier>
+          <NewMemberFileName>Fracture.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Typedef Name="FracturePolygon::TPolys" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Fracture.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAggAAAAAABoAAAAAUAAIREkAAAIIACAAAAIAAAAAA=</HashCode>
+      <FileName>Fracture.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Typedef Name="BPoint" Collapsed="true">
+    <Position X="3" Y="3.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Boost.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="BPolygon" Collapsed="true">
+    <Position X="3" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Boost.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="TEdge" Collapsed="true">
+    <Position X="3" Y="2" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Fracture.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="TAngle" Collapsed="true">
+    <Position X="3" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Fracture.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="TNode" Collapsed="true">
+    <Position X="3" Y="4.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Fracture.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="Segments" Collapsed="true">
+    <Position X="3" Y="2.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Boolean.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="Lines" Collapsed="true">
+    <Position X="3" Y="1.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Boolean.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
